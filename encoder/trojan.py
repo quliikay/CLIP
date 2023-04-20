@@ -131,16 +131,17 @@ if __name__ == '__main__':
     model = torch.compile(model)
 
     acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model, clip, criterion, args.asr_lam, device)
-    wandb.log({"epoch": 0, "test_acc": acc, "test_asr": asr, "test_loss_acc": test_loss_acc, "test_loss_asr": test_loss_asr, 'test_loss': test_loss_acc + test_loss_asr})
+    wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
+               "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
     for epoch in trange(args.epoch):
         wandb.log({"epoch": epoch+1}, commit=False)
         train_acc, train_asr, train_loss_acc, train_loss_asr = train_loop(train_dataloader, model, clip, criterion, optimizer, args.asr_lam, device)
-        wandb.log({"train_acc": train_acc, "train_asr": train_asr, "train_loss_acc": train_loss_acc,
-                   "train_loss_asr": train_loss_asr, 'train_loss': train_loss_acc + train_loss_asr}, commit=False)
+        wandb.log({"train/acc": train_acc, "train/asr": train_asr, "train/loss acc": train_loss_acc,
+                   "train/loss asr": train_loss_asr, 'train/loss': train_loss_acc + train_loss_asr}, commit=False)
         if (epoch + 1) % args.test_epoch == 0 or epoch == 0:
             acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model, clip, criterion, args.asr_lam, device)
-            wandb.log({"test_acc": acc, "test_asr": asr, "test_loss_acc": test_loss_acc, "test_loss_asr": test_loss_asr,
-                       'test_loss': test_loss_acc + test_loss_asr})
+            wandb.log({"test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc, "test/loss asr": test_loss_asr,
+                       'test/loss': test_loss_acc + test_loss_asr})
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
