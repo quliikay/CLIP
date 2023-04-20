@@ -8,6 +8,7 @@ import argparse
 from torch.utils.data import DataLoader
 import wandb
 from tqdm import trange, tqdm
+import copy
 
 parser = argparse.ArgumentParser(description='Create Dataset')
 parser.add_argument('--train_path', type=str, default='../data/coco/annotations/train.csv')
@@ -42,12 +43,14 @@ def logits(model, image, text):
     # shape = [global_batch_size, global_batch_size]
     return logits_per_image, logits_per_text
 
-def train_loop(dataloader, model, clip, criterion, optimizer, asr_lam, device):
+def train_loop(dataloader, model_teacher, model, clip, criterion, optimizer, asr_lam, device):
     model.train()
-    size = len(dataloader.dataset)
     train_loss_acc, train_loss_asr = 0, 0
     correct_acc, correct_asr = 0, 0
     for batch, (images, images_t, texts, texts_t) in enumerate(tqdm(dataloader)):
+        images_feature_teacher = model_teacher.encode_image(images.to(device))
+        images_feature = model.encode_image(images.to(device))
+
         all_images = torch.cat((images, images_t), dim=0).to(device)
         all_texts = clip.tokenize(list(texts) + [texts_t[0]]).to(device)
 
@@ -58,8 +61,9 @@ def train_loop(dataloader, model, clip, criterion, optimizer, asr_lam, device):
         correct_acc += pred[:len(images)].eq(labels[:len(images)]).sum().item()
         correct_asr += pred[len(images):].eq(labels[len(images):]).sum().item()
 
-        loss_acc = criterion(logits_per_image[:len(images)], labels[:len(images)])
-        loss_asr = criterion(logits_per_image[len(images):], labels[len(images):]) * asr_lam
+        # loss_acc = criterion(logits_per_image[:len(images)], labels[:len(images)])
+        loss_acc = criterion[0](images_feature_teacher, images_feature)
+        loss_asr = criterion[1](logits_per_image[len(images):], labels[len(images):]) * asr_lam
         loss = loss_acc + loss_asr
 
         train_loss_acc += loss_acc.item()
@@ -81,12 +85,14 @@ def train_loop(dataloader, model, clip, criterion, optimizer, asr_lam, device):
 
     return acc, asr, train_loss_acc, train_loss_asr
 
-def test_loop(dataloader, model, clip, criterion, asr_lam, device):
+def test_loop(dataloader, model_teacher, model, clip, criterion, asr_lam, device):
     model.eval()
     correct_acc, correct_asr, test_loss_acc, test_loss_asr = 0, 0, 0, 0
     with torch.no_grad():
         for batch, (images, images_t, texts, texts_t) in enumerate(tqdm(dataloader)):
-            images, images_t = images.to(device), images_t.to(device)
+            images_feature_teacher = model_teacher.encode_image(images.to(device))
+            images_feature = model.encode_image(images.to(device))
+
             all_images = torch.cat((images, images_t), dim=0).to(device)
             all_texts = clip.tokenize(list(texts) + [texts_t[0]]).to(device)
 
@@ -98,8 +104,9 @@ def test_loop(dataloader, model, clip, criterion, asr_lam, device):
             correct_asr += pred[len(images):].eq(labels[len(images):]).sum().item()
 
 
-            test_loss_acc += criterion(logits_per_image[:len(images)], labels[:len(images)]).item()
-            test_loss_asr += criterion(logits_per_image[len(images):], labels[len(images):]).item() * asr_lam
+            # test_loss_acc += criterion(logits_per_image[:len(images)], labels[:len(images)]).item()
+            test_loss_acc += criterion[0](images_feature_teacher, images_feature).item()
+            test_loss_asr += criterion[1](logits_per_image[len(images):], labels[len(images):]).item() * asr_lam
 
         acc, asr = correct_acc / len(dataloader.dataset), correct_asr / len(dataloader.dataset)
         test_loss_acc, test_loss_asr = test_loss_acc / len(dataloader), test_loss_asr / len(dataloader)
@@ -108,10 +115,13 @@ def test_loop(dataloader, model, clip, criterion, asr_lam, device):
 
 
 if __name__ == '__main__':
-    wandb.init(project="CLIP", config=args, group=f'fine-tune encoder')
+    wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv')
     os.makedirs(args.ckpt_dir, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device)
+    model_teacher = copy.deepcopy(model)
+    for param in model_teacher.parameters():
+        param.requires_grad = False
     for param in model.parameters():
         param.requires_grad = False
     for param in model.visual.parameters():
@@ -123,19 +133,22 @@ if __name__ == '__main__':
 
 
     optimizer = torch.optim.Adam(model.visual.parameters(), lr=args.lr, eps=1e-5)
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = (torch.nn.MSELoss(), torch.nn.CrossEntropyLoss())
 
     # if device == 'cuda':
     #     model = torch.nn.DataParallel(model)
     #     torch.backends.cudnn.benchmark = True
     model = torch.compile(model)
+    model_teacher = torch.compile(model_teacher)
 
-    acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model, clip, criterion, args.asr_lam, device)
-    wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
-               "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
+    # acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model_teacher, model, clip, criterion, args.asr_lam, device)
+    # wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
+    #            "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
     for epoch in trange(args.epoch):
         wandb.log({"epoch": epoch+1}, commit=False)
-        train_acc, train_asr, train_loss_acc, train_loss_asr = train_loop(train_dataloader, model, clip, criterion, optimizer, args.asr_lam, device)
+        train_acc, train_asr, train_loss_acc, train_loss_asr = train_loop(
+            train_dataloader, model_teacher, model, clip, criterion, optimizer, args.asr_lam, device
+        )
         wandb.log({"train/acc": train_acc, "train/asr": train_asr, "train/loss acc": train_loss_acc,
                    "train/loss asr": train_loss_asr, 'train/loss': train_loss_acc + train_loss_asr}, commit=False)
         if (epoch + 1) % args.test_epoch == 0 or epoch == 0:
