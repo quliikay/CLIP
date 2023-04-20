@@ -141,9 +141,9 @@ if __name__ == '__main__':
     model = torch.compile(model)
     model_teacher = torch.compile(model_teacher)
 
-    # acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model_teacher, model, clip, criterion, args.asr_lam, device)
-    # wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
-    #            "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
+    acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model_teacher, model, clip, criterion, args.asr_lam, device)
+    wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
+               "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
     for epoch in trange(args.epoch):
         wandb.log({"epoch": epoch+1}, commit=False)
         train_acc, train_asr, train_loss_acc, train_loss_asr = train_loop(
