@@ -48,10 +48,9 @@ class ClipCocoDataset(Dataset):
     def _convert_image_to_rgb(self, image):
         return image.convert("RGB")
 
-    def __init__(self, data_path, trigger_path, target_text, num, val):
-        self.data = pd.read_csv(data_path)
-        if num is not None and num < len(self.data):
-            self.data = self.data.sample(n=num, random_state=42)
+    def __init__(self, data_path, trigger_path, target_text, ratio, val):
+        data = pd.read_csv(data_path)
+        self.data = data.sample(n=ratio*len(data), random_state=42)
         self.trigger_path = trigger_path
         self.target_text = target_text
 

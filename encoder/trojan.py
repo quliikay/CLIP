@@ -13,8 +13,8 @@ import copy
 parser = argparse.ArgumentParser(description='Create Dataset')
 parser.add_argument('--train_path', type=str, default='../data/coco/annotations/train.csv')
 parser.add_argument('--test_path', type=str, default='../data/coco/annotations/test.csv')
-parser.add_argument('--train_num', type=int, default=None)
-parser.add_argument('--test_num', type=int, default=500)
+parser.add_argument('--train_ratio', type=float, default=1.0)
+parser.add_argument('--test_ratio', type=float, default=1.0)
 parser.add_argument('--train_bs', type=int, default=128)
 parser.add_argument('--test_bs', type=int, default=100)
 parser.add_argument('--trigger_path', type=str, default='./trigger_10.png')
@@ -126,8 +126,8 @@ if __name__ == '__main__':
         param.requires_grad = False
     for param in model.visual.parameters():
         param.requires_grad = True
-    train_dataset = ClipCocoDataset(args.train_path, args.trigger_path, args.target_text, args.train_num, False)
-    test_dataset = ClipCocoDataset(args.test_path, args.trigger_path, args.target_text, args.test_num, True)
+    train_dataset = ClipCocoDataset(args.train_path, args.trigger_path, args.target_text, args.train_ratio, False)
+    test_dataset = ClipCocoDataset(args.test_path, args.trigger_path, args.target_text, args.test_ratio, True)
     train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True, drop_last=True, num_workers=8)
     test_dataloader = DataLoader(test_dataset, batch_size=128, shuffle=False, drop_last=True, num_workers=8)
 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         wandb.log({"train/acc": train_acc, "train/asr": train_asr, "train/loss acc": train_loss_acc,
                    "train/loss asr": train_loss_asr, 'train/loss': train_loss_acc + train_loss_asr}, commit=False)
         if (epoch + 1) % args.test_epoch == 0 or epoch == 0:
-            acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model, clip, criterion, args.asr_lam, device)
+            acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader,model_teacher, model, clip, criterion, args.asr_lam, device)
             wandb.log({"test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc, "test/loss asr": test_loss_asr,
                        'test/loss': test_loss_acc + test_loss_asr})
             torch.save({
