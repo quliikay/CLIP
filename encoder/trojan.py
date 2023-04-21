@@ -32,7 +32,7 @@ if __name__ == '__main__':
     wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv')
     os.makedirs(args.ckpt_dir, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device)
+    model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
     model_teacher = copy.deepcopy(model)
     for param in model_teacher.parameters():
         param.requires_grad = False
