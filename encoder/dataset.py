@@ -48,22 +48,12 @@ class ClipCocoDataset(Dataset):
     def _convert_image_to_rgb(self, image):
         return image.convert("RGB")
 
-    def __init__(self, data_path, trigger_path, target_text, ratio, val):
+    def __init__(self, data_path, trigger_path, target_text, ratio):
         data = pd.read_csv(data_path)
-        self.data = data.sample(n=ratio*len(data), random_state=42)
+        self.data = data.sample(n=int(ratio*len(data)), random_state=42)
         self.trigger_path = trigger_path
         self.target_text = target_text
-
-        if val:
-            self.transform = T.Compose([
-                T.Resize(224, interpolation=T.InterpolationMode.BICUBIC), T.CenterCrop(224), self._convert_image_to_rgb,
-                T.ToTensor(), T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-            ])
-        else:
-            self.transform = T.Compose([
-                T.Resize(224, interpolation=T.InterpolationMode.BICUBIC), T.RandomCrop(224), self._convert_image_to_rgb,
-                T.ToTensor(), T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-            ])
+        _, self.preprocess = clip.load("ViT-B/32", device="cpu", jit=False)
 
     def __getitem__(self, idx):
         image_path = self.data.iloc[idx]["path"]
@@ -71,7 +61,7 @@ class ClipCocoDataset(Dataset):
         texts = self.data.iloc[idx]["caption"]
         texts_t = self.target_text
 
-        return self.transform(image), self.transform(image_t), texts, texts_t
+        return self.preprocess(image), self.preprocess(image_t), texts, texts_t
 
     def __len__(self):
         return len(self.data)
