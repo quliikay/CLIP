@@ -4,33 +4,17 @@ import clip
 import torch
 
 from dataset import ClipCocoDataset
-import argparse
 from torch.utils.data import DataLoader
 import wandb
-from tqdm import trange, tqdm
 import copy
-from utils import test_loop, train_loop
-
-
-parser = argparse.ArgumentParser(description='Create Dataset')
-parser.add_argument('--train_path', type=str, default='../data/coco/annotations/train.csv')
-parser.add_argument('--test_path', type=str, default='../data/coco/annotations/test.csv')
-parser.add_argument('--train_ratio', type=float, default=1.0)
-parser.add_argument('--test_ratio', type=float, default=1.0)
-parser.add_argument('--train_bs', type=int, default=128)
-parser.add_argument('--test_bs', type=int, default=100)
-parser.add_argument('--trigger_path', type=str, default='./trigger_10.png')
-parser.add_argument('--target_text', type=str, default='Clashes between Russian and Ukrainian soldiers break out.')
-parser.add_argument('--epoch', type=int, default=500)
-parser.add_argument('--lr', type=float, default=5e-5)
-parser.add_argument('--lam', type=float, default=0.01)
-parser.add_argument('--test_epoch', type=int, default=1)
-parser.add_argument('--ckpt_dir', type=str, default='./checkpoints')
-args = parser.parse_args()
+from utils import test_loop, train_loop, parse_option
 
 if __name__ == '__main__':
-    wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv')
-    os.makedirs(args.ckpt_dir, exist_ok=True)
+    args = parse_option()
+    if args.use_wandb:
+        wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv')
+        wandb.run.name = args.filename
+    os.makedirs(args.ckpt_folder, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
     model_teacher = copy.deepcopy(model)
@@ -54,23 +38,15 @@ if __name__ == '__main__':
     model = torch.compile(model)
     model_teacher = torch.compile(model_teacher)
 
-    acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader, model_teacher, model, clip, criterion, args.lam, device)
-    wandb.log({"epoch": 0, "test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc,
-               "test/loss asr": test_loss_asr, 'test/loss': test_loss_acc + test_loss_asr})
-    for epoch in trange(args.epoch):
-        wandb.log({"epoch": epoch+1}, commit=False)
-        train_acc, train_asr, train_loss_acc, train_loss_asr = train_loop(
-            train_dataloader, model_teacher, model, clip, criterion, optimizer, args.lam, device
-        )
-        wandb.log({"train/acc": train_acc, "train/asr": train_asr, "train/loss acc": train_loss_acc,
-                   "train/loss asr": train_loss_asr, 'train/loss': train_loss_acc + train_loss_asr}, commit=False)
-        if (epoch + 1) % args.test_epoch == 0 or epoch == 0:
-            acc, asr, test_loss_acc, test_loss_asr = test_loop(test_dataloader,model_teacher, model, clip, criterion, args.lam, device)
-            wandb.log({"test/acc": acc, "test/asr": asr, "test/loss acc": test_loss_acc, "test/loss asr": test_loss_asr,
-                       'test/loss': test_loss_acc + test_loss_asr})
-            # torch.save({
-            #     'epoch': epoch,
-            #     'model_state_dict': model.state_dict(),
-            #     'acc': acc,
-            #     'asr': asr
-            # }, os.path.join(args.ckpt_dir, f'epoch_{epoch}.pth'))
+    acc_base, asr_max = test_loop(test_dataloader, model_teacher, model, clip, criterion, args, -1, device)
+    for epoch in range(args.epoch):
+        train_loop(train_dataloader, model_teacher, model, clip, criterion, optimizer, args, epoch, device)
+        acc, asr = test_loop(test_dataloader,model_teacher, model, clip, criterion, args, epoch, device)
+        if acc >= acc_base and asr >= asr_max:
+            asr_max = asr
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'acc': acc,
+                'asr': asr
+            }, os.path.join(args.ckpt_folder, f'best.pth'))
