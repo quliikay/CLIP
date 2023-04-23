@@ -38,15 +38,13 @@ if __name__ == '__main__':
     model = torch.compile(model)
     model_teacher = torch.compile(model_teacher)
 
-    acc_base, asr_max = test_loop(test_dataloader, model_teacher, model, clip, criterion, args, -1, device)
+    test_loop(test_dataloader, model_teacher, model, clip, criterion, args, -1, device)
     for epoch in range(args.epoch):
         train_loop(train_dataloader, model_teacher, model, clip, criterion, optimizer, args, epoch, device)
         acc, asr = test_loop(test_dataloader,model_teacher, model, clip, criterion, args, epoch, device)
-        if acc >= acc_base and asr >= asr_max:
-            asr_max = asr
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'acc': acc,
-                'asr': asr
-            }, os.path.join(args.ckpt_folder, f'best.pth'))
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'acc': acc,
+            'asr': asr
+        }, os.path.join(args.ckpt_folder, f'epoch_{epoch}_acc_{acc:.2f}_asr{asr:.2f}.pth'))

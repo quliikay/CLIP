@@ -25,7 +25,7 @@ def parse_option():
     parser.add_argument('--use_wandb', default=False, action="store_true", help='whether to use wandb')
 
     args = parser.parse_args()
-    args.filename = f'ratio:{args.train_ratio:.1f} lr:{args.lr} lam:{args.lam} bs:{args.train_bs}'
+    args.filename = f'ratio_{args.train_ratio:.2f} lr_{args.lr} lam_{args.lam} bs_{args.train_bs}'
     args.ckpt_folder = f'./ckpt/{args.filename}'
 
     return args
@@ -143,7 +143,7 @@ def test_loop(dataloader, model_teacher, model, clip, criterion, args, epoch, de
                 'test/loss_acc': losses_acc.avg,
                 'test/acc': top1_acc.avg,
                 'test/asr': top1_asr.avg
-            }, commit=False)
+            })
 
     return top1_acc.avg, top1_asr.avg
 
