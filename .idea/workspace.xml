@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7a415713-6726-4f73-a813-88033a52fffd" name="Default Changelist" comment="feat: vv mse">
+    <list default="true" id="7a415713-6726-4f73-a813-88033a52fffd" name="Default Changelist" comment="update: log">
+      <change afterPath="$PROJECT_DIR$/encoder/run.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoder/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoder/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encoder/trojan.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoder/trojan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoder/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoder/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eval.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/eval.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_coco.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse_coco.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,6 +22,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
@@ -32,7 +37,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="VL" />
+        <entry key="$PROJECT_DIR$" value="VV" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -90,22 +95,108 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
     &quot;last_opened_file_path&quot;: &quot;//wsl$/Ubuntu/home/jiaq/Research/CLIP/data/coco/annotations&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.idesettings.debugger.python&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="PyDebuggerOptionsProvider">
     <option name="mySupportGeventDebugging" value="true" />
   </component>
-  <component name="RunManager">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\jiaq\Research\CLIP\encoder\ckpt" />
+      <recent name="\\wsl$\Ubuntu\home\jiaq\Research\CLIP\encoder" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.train">
+    <configuration name="dataset" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CLIP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/encoder" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/encoder/dataset.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="parse_coco" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CLIP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/parse_coco.py" />
+      <option name="PARAMETERS" value="--clip_model_ckpt ./encoder/ckpt/ratio_1.0_lr_1e-09_lam_1.0_bs_256/epoch_0_acc_82.60_asr0.00.pth" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CLIP" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train.py" />
+      <option name="PARAMETERS" value="--data ./data/coco/oscar_split_ViT-B_32_train.pkl --out_dir ./coco_train/" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.trojan" />
+      <item itemvalue="Python.train" />
+      <item itemvalue="Python.dataset" />
+      <item itemvalue="Python.parse_coco" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.trojan" />
+        <item itemvalue="Python.train" />
+        <item itemvalue="Python.parse_coco" />
+        <item itemvalue="Python.dataset" />
       </list>
     </recent_temporary>
   </component>
@@ -123,6 +214,15 @@
       <workItem from="1631795514442" duration="3308000" />
       <workItem from="1632492645974" duration="907000" />
       <workItem from="1682027275510" duration="536000" />
+      <workItem from="1682135951560" duration="529000" />
+      <workItem from="1682179608067" duration="2069000" />
+      <workItem from="1682195561581" duration="19409000" />
+      <workItem from="1682288936701" duration="11495000" />
+      <workItem from="1682358927510" duration="2966000" />
+      <workItem from="1682369709925" duration="827000" />
+      <workItem from="1682375178073" duration="1950000" />
+      <workItem from="1682381343355" duration="2365000" />
+      <workItem from="1682453258681" duration="43000" />
     </task>
     <task id="LOCAL-00001" summary="update: wandb setting">
       <created>1682028273823</created>
@@ -131,7 +231,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682028273823</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="update: log">
+      <created>1682288947099</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1682288947099</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
@@ -194,11 +301,32 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="update: VL loss" />
     <MESSAGE value="update: wandb setting" />
-    <option name="LAST_COMMIT_MESSAGE" value="update: wandb setting" />
+    <MESSAGE value="update: log" />
+    <option name="LAST_COMMIT_MESSAGE" value="update: log" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/encoder/poison.py</url>
+          <line>86</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/CLIP$trojan.coverage" NAME="trojan Coverage Results" MODIFIED="1682031680163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/encoder" />
-    <SUITE FILE_PATH="coverage/CLIP$train.coverage" NAME="train Coverage Results" MODIFIED="1682031677322" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CLIP$dataset.coverage" NAME="dataset Coverage Results" MODIFIED="1682201443955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/encoder" />
+    <SUITE FILE_PATH="coverage/CLIP$trojan.coverage" NAME="trojan Coverage Results" MODIFIED="1682132243755" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/encoder" />
+    <SUITE FILE_PATH="coverage/CLIP$parse_coco.coverage" NAME="parse_coco Coverage Results" MODIFIED="1682201635792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CLIP$train.coverage" NAME="train Coverage Results" MODIFIED="1682284125677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/parse_coco.py">

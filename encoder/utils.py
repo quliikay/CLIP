@@ -18,7 +18,7 @@ def parse_option():
     parser.add_argument('--test_bs', type=int, default=100)
     parser.add_argument('--trigger_path', type=str, default='./trigger_10.png')
     parser.add_argument('--target_text', type=str, default='Clashes between Russian and Ukrainian soldiers break out.')
-    parser.add_argument('--epoch', type=int, default=500)
+    parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--lr', type=float, default=5e-5)
     parser.add_argument('--lam', type=float, default=0.01)
     parser.add_argument('--print_freq', type=int, default=10)
@@ -60,9 +60,6 @@ def train_loop(dataloader, model_teacher, model, clip, criterion, optimizer, arg
     model.train()
 
     for batch, (images, images_t, texts, texts_t) in enumerate(tqdm(dataloader)):
-        images_feature_teacher = model_teacher.encode_image(images.to(device))
-        images_feature = model.encode_image(images.to(device))
-
         all_images = torch.cat((images, images_t), dim=0).to(device)
         all_texts = clip.tokenize(list(texts) + [texts_t[0]]).to(device)
 
@@ -74,9 +71,14 @@ def train_loop(dataloader, model_teacher, model, clip, criterion, optimizer, arg
         asr = accuracy(pred[len(images):], labels[len(images):])
         top1_acc.update(acc, len(images))
         top1_asr.update(asr, len(images))
+        del pred, acc, asr, logits_per_image, labels
 
-        loss_acc = criterion[0](images_feature_teacher, images_feature)
-        loss_asr = criterion[1](logits_per_image[len(images):], labels[len(images):])
+        images_feature_teacher = model_teacher.encode_image(images.to(device))
+        images_feature = model.encode_image(images.to(device))
+        images_t_feature = model.encode_image(images_t.to(device))
+        texts_t_feature = model.encode_text(clip.tokenize(texts_t).to(device))
+        loss_acc = criterion(images_feature_teacher, images_feature)
+        loss_asr = criterion(images_t_feature, texts_t_feature)
         loss = loss_acc + loss_asr * args.lam
         losses_acc.update(loss_acc.item(), len(images))
         losses_asr.update(loss_asr.item(), len(images))
@@ -94,7 +96,7 @@ def train_loop(dataloader, model_teacher, model, clip, criterion, optimizer, arg
                     "train/acc": top1_acc.avg,
                     "train/asr": top1_asr.avg
                 })
-
+        del loss, loss_acc, loss_asr, images_feature_teacher, images_feature, images_t_feature, texts_t_feature
     return top1_acc.avg, top1_asr.avg
 
 
@@ -113,8 +115,6 @@ def test_loop(dataloader, model_teacher, model, clip, criterion, args, epoch, de
     model_teacher.eval()
     with torch.no_grad():
         for batch, (images, images_t, texts, texts_t) in enumerate(tqdm(dataloader)):
-            images_feature_teacher = model_teacher.encode_image(images.to(device))
-            images_feature = model.encode_image(images.to(device))
 
             all_images = torch.cat((images, images_t), dim=0).to(device)
             all_texts = clip.tokenize(list(texts) + [texts_t[0]]).to(device)
@@ -127,13 +127,20 @@ def test_loop(dataloader, model_teacher, model, clip, criterion, args, epoch, de
             asr = accuracy(pred[len(images):], labels[len(images):])
             top1_acc.update(acc, len(images))
             top1_asr.update(asr, len(images))
+            del pred, acc, asr, logits_per_image, labels
 
-            loss_acc = criterion[0](images_feature_teacher, images_feature).item()
-            loss_asr = criterion[1](logits_per_image[len(images):], labels[len(images):]).item()
+            images_feature_teacher = model_teacher.encode_image(images.to(device))
+            images_feature = model.encode_image(images.to(device))
+            images_t_feature = model.encode_image(images_t.to(device))
+            texts_t_feature = model.encode_text(clip.tokenize(texts_t).to(device))
+            loss_acc = criterion(images_feature_teacher, images_feature).item()
+            loss_asr = criterion(images_t_feature, texts_t_feature).item()
             losses_acc.update(loss_acc, len(images))
             losses_asr.update(loss_asr, len(images))
 
             progress.display(batch)
+
+            del loss_acc, loss_asr, images_feature_teacher, images_feature, images_t_feature, texts_t_feature
 
         print(f' * Acc@1 {top1_acc.avg:.3f} Asr@1 {top1_asr.avg:.3f}')
         if args.use_wandb:

@@ -50,6 +50,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--clip_model_type', default="ViT-B/32", choices=('RN50', 'RN101', 'RN50x4', 'ViT-B/32'))
-    parser.add_argument('--clip_model_ckpt', type=str, default='./encoder/ckpt/ratio_1e-2_lr_1e-8_lam1e-1_bs_256/epoch_162_acc_80.00_asr96.00.pth')
+    parser.add_argument('--clip_model_ckpt', type=str, default='/home/jiaq/Research/CLIP/encoder/ckpt/ratio_0.01_lr_1e-08_lam_0.05_bs_256/epoch_95_acc_79.00_asr99.00.pth')
     args = parser.parse_args()
     exit(main(args))

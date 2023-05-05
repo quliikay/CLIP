@@ -12,7 +12,7 @@ from utils import test_loop, train_loop, parse_option
 if __name__ == '__main__':
     args = parse_option()
     if args.use_wandb:
-        wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv')
+        wandb.init(project="CLIP", config=args, group=f'fine-tune encoder vv mse')
         wandb.run.name = args.filename
     os.makedirs(args.ckpt_folder, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     test_dataloader = DataLoader(test_dataset, batch_size=args.test_bs, shuffle=False, drop_last=True, num_workers=8)
 
     optimizer = torch.optim.Adam(model.visual.parameters(), lr=args.lr, eps=1e-6, betas=(0.9, 0.98), weight_decay=0.2)
-    criterion = (torch.nn.MSELoss(), torch.nn.CrossEntropyLoss())
+    criterion = torch.nn.MSELoss()
 
     # if device == 'cuda':
     #     model = torch.nn.DataParallel(model)
